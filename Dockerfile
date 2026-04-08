@@ -3,9 +3,12 @@ FROM python:3.10-slim
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
+    YOLO_CONFIG_DIR=/tmp/Ultralytics \
     PORT=7860
 
 WORKDIR /app
+
+RUN mkdir -p /tmp/Ultralytics
 
 # OpenCV runtime libraries.
 RUN apt-get update && apt-get install -y --no-install-recommends \

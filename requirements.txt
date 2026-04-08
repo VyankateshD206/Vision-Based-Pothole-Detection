@@ -10,3 +10,4 @@ matplotlib
 torch
 torchvision
 ultralytics
+dill
