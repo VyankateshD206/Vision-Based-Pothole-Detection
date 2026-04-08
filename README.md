@@ -170,3 +170,57 @@ Since no ground-truth severity labels exist, KMeans clustering (k=3) is applied 
 ### Known Limitations
 - Pseudo-labels are derived from the same features used for training, so high accuracy is expected but does not indicate true generalisation
 - Per-image depth normalisation reduces depth discriminability across images
+
+## 9) Deploy (Free Tier: Vercel + Hugging Face Spaces)
+
+This repository now includes deployment-ready configuration for a free split deployment:
+
+- Frontend: Vercel (static Vite build from `web-ui/`)
+- Backend: Hugging Face Spaces Docker (FastAPI in project root)
+
+### Backend deploy prep
+
+1. Build/runtime files are included:
+	- `requirements.txt`
+	- `Dockerfile`
+	- `.dockerignore`
+	- `.env.example`
+2. Set backend environment variables:
+	- `FRONTEND_ORIGINS=https://<your-vercel-domain>`
+	- `PORT=7860` (Hugging Face default for Docker Spaces)
+3. Start command is already configured in Dockerfile:
+
+```bash
+uvicorn api:app --host 0.0.0.0 --port ${PORT:-7860}
+```
+
+4. Depth model note:
+	 - `Depth-Anything-V2/` is not required in GitHub for deployment.
+	 - Dockerfile automatically clones Depth-Anything-V2 and downloads
+		 `depth_anything_v2_vits.pth` during image build.
+
+### Frontend deploy prep
+
+1. Configure environment variable in Vercel:
+	- `VITE_API_BASE_URL=https://<your-space-subdomain>.hf.space`
+2. Build command and output:
+	- Build: `npm run build`
+	- Output: `dist`
+3. SPA fallback routing is handled by `web-ui/vercel.json`.
+
+### Local parity check
+
+Backend:
+
+```powershell
+python api.py
+```
+
+Frontend:
+
+```powershell
+cd web-ui
+copy .env.example .env
+npm install
+npm run dev
+```
