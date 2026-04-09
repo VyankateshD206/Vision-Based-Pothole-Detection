@@ -1,0 +1,40 @@
+# Git and local environment
+.git
+.venv
+__pycache__
+*.pyc
+*.pyo
+
+# Editor and OS
+.vscode
+.idea
+.DS_Store
+Thumbs.db
+
+# Large datasets and generated artifacts not needed at runtime
+archive/
+data1/
+merged_dataset/
+depth_maps_1/
+depth_maps_global/
+depth_maps_merged/
+pothole600/
+rdd_temp/
+RDD2022/
+gps/unannotated_images/
+Depth-Anything-V2/
+
+# Frontend and design-only artifacts not required by backend container
+web-ui/
+detection_ui_1/
+model_insights_1/
+stitch_1/
+
+# Keep only the YOLO runtime weight from the segmentation folder
+yolo-segmentation/**
+!yolo-segmentation/model/
+!yolo-segmentation/model/best.pt
+
+# Local outputs and reports
+output/
+*.zip

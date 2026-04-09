@@ -211,3 +211,20 @@ depth_maps/
 Depth-Anything-V2/
 data1/
 output/
+
+# Datasets and large raw artifacts (do not push to GitHub)
+archive/
+RDD2022/
+RDD2022.zip
+rdd_temp/
+merged_dataset/
+pothole600/
+gps/unannotated_images/
+depth_maps_1/
+depth_maps_global/
+depth_maps_merged/
+depth_global_stats.npy
+
+# Local deployment notes
+DEPLOYMENT.md
+deployment.md

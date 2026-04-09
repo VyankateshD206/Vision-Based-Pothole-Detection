@@ -1,0 +1,13 @@
+fastapi
+uvicorn[standard]
+python-multipart
+numpy
+opencv-python-headless
+scipy
+scikit-learn
+joblib
+matplotlib
+torch
+torchvision
+ultralytics
+dill

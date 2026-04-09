@@ -41,11 +41,12 @@ MODEL_PATH = os.path.join(
 )
 
 DATA_PATHS = {
-    "train": os.path.join(PROJECT_ROOT, "data1", "train", "images"),
-    "valid": os.path.join(PROJECT_ROOT, "data1", "valid", "images"),
+    "train": os.path.join(PROJECT_ROOT, "merged_dataset", "train", "images"),
+    "valid": os.path.join(PROJECT_ROOT, "merged_dataset", "valid", "images"),
+    "test": os.path.join(PROJECT_ROOT, "merged_dataset", "test", "images"),
 }
 
-OUTPUT_PATH = os.path.join(PROJECT_ROOT, "depth_maps_1")
+OUTPUT_PATH = os.path.join(PROJECT_ROOT, "depth_maps_merged")
 
 # -------------------------
 # LOAD MODEL
