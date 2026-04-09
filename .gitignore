@@ -224,3 +224,7 @@ depth_maps_1/
 depth_maps_global/
 depth_maps_merged/
 depth_global_stats.npy
+
+# Local deployment notes
+DEPLOYMENT.md
+deployment.md
