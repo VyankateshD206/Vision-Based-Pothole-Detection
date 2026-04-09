@@ -1,0 +1,5 @@
+--- Verification Report ---
+Total checked: 4791
+Total removed: 0
+
+Issues Details:

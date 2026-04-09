@@ -117,12 +117,66 @@ def run_pipeline(
         cv2.LINE_AA,
     )
 
+    overlay_mask = original_image.copy()
+    if np.any(mask):
+        red_layer = np.zeros_like(original_image)
+        red_layer[:, :, 2] = 255
+        blended = cv2.addWeighted(original_image, 0.4, red_layer, 0.6, 0)
+        overlay_mask[mask == 1] = blended[mask == 1]
+
+        ys, xs = np.where(mask == 1)
+        x1, y1, x2, y2 = int(xs.min()), int(ys.min()), int(xs.max()), int(ys.max())
+        cv2.rectangle(overlay_mask, (x1, y1), (x2, y2), (0, 0, 255), 2)
+
+        local_contrast = 0.0 if features is None else float(features.get("local_depth_contrast", 0.0))
+        depth_std = 0.0 if features is None else float(features.get("depth_std", 0.0))
+        label_lines = [
+            f"Class: {consensus}",
+            f"Drop: {local_contrast:.3f}",
+            f"Roughness: {depth_std:.3f}",
+        ]
+
+        line_h = 20
+        pad = 8
+        label_w = max(
+            cv2.getTextSize(t, cv2.FONT_HERSHEY_SIMPLEX, 0.55, 2)[0][0]
+            for t in label_lines
+        )
+        label_h = 2 * pad + line_h * len(label_lines)
+        box_w = label_w + 2 * pad
+
+        label_x = max(5, min(x1, overlay_mask.shape[1] - box_w - 5))
+        label_y = y1 - label_h - 8
+        if label_y < 5:
+            label_y = min(overlay_mask.shape[0] - label_h - 5, y2 + 8)
+
+        dark_bg = overlay_mask.copy()
+        cv2.rectangle(
+            dark_bg,
+            (label_x, label_y),
+            (label_x + box_w, label_y + label_h),
+            (0, 0, 0),
+            -1,
+        )
+        cv2.addWeighted(dark_bg, 0.55, overlay_mask, 0.45, 0, overlay_mask)
+
+        for idx, text in enumerate(label_lines):
+            y = label_y + pad + 14 + idx * line_h
+            cv2.putText(
+                overlay_mask,
+                text,
+                (label_x + pad, y),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.55,
+                (255, 255, 255),
+                2,
+                cv2.LINE_AA,
+            )
+
     depth_norm = cv2.normalize(depth_map, None, 0, 255, cv2.NORM_MINMAX).astype(
         np.uint8
     )
     depth_heatmap = cv2.applyColorMap(depth_norm, cv2.COLORMAP_JET)
-
-    mask_vis = (mask * 255).astype(np.uint8)
 
     plt.figure(figsize=(15, 5))
 
@@ -132,8 +186,8 @@ def run_pipeline(
     plt.axis("off")
 
     plt.subplot(1, 3, 2)
-    plt.title("Pothole Mask")
-    plt.imshow(mask_vis, cmap="gray")
+    plt.title("Pothole BBox + Depth + Severity")
+    plt.imshow(cv2.cvtColor(overlay_mask, cv2.COLOR_BGR2RGB))
     plt.axis("off")
 
     plt.subplot(1, 3, 3)
