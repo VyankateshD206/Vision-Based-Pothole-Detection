@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="360" viewBox="0 0 1200 360" role="img" aria-labelledby="title desc">
+  <title id="title">Vision-Based Pothole Detection</title>
+  <desc id="desc">Project banner with gradient background and summary text.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="55%" stop-color="#1e293b"/>
+      <stop offset="100%" stop-color="#0ea5e9"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#22d3ee"/>
+      <stop offset="100%" stop-color="#f59e0b"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="360" fill="url(#bg)"/>
+  <circle cx="1050" cy="70" r="120" fill="#38bdf8" opacity="0.16"/>
+  <circle cx="140" cy="320" r="180" fill="#f59e0b" opacity="0.12"/>
+
+  <rect x="70" y="70" width="6" height="220" rx="3" fill="url(#accent)"/>
+
+  <text x="95" y="128" fill="#e2e8f0" font-family="Segoe UI, Arial, sans-serif" font-size="46" font-weight="700">
+    Vision-Based Pothole Detection
+  </text>
+  <text x="95" y="173" fill="#cbd5e1" font-family="Segoe UI, Arial, sans-serif" font-size="24" font-weight="500">
+    YOLOv8 + Depth Estimation + Severity Analytics
+  </text>
+
+  <g transform="translate(95,215)">
+    <rect width="245" height="42" rx="10" fill="#0ea5e9" opacity="0.23"/>
+    <text x="14" y="27" fill="#e0f2fe" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="600">FastAPI Backend</text>
+  </g>
+
+  <g transform="translate(355,215)">
+    <rect width="285" height="42" rx="10" fill="#22c55e" opacity="0.24"/>
+    <text x="14" y="27" fill="#dcfce7" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="600">React + Vite Frontend</text>
+  </g>
+
+  <g transform="translate(655,215)">
+    <rect width="320" height="42" rx="10" fill="#f59e0b" opacity="0.27"/>
+    <text x="14" y="27" fill="#fef3c7" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="600">Insights and Model Comparison</text>
+  </g>
+</svg>
