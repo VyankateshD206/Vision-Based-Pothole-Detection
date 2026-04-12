@@ -1,226 +1,422 @@
-# Vision-Based-Pothole-Detection
+# Vision-Based Pothole Detection
 
-This project estimates pothole severity from road images by combining:
+![Project Hero](docs/assets/hero.svg)
 
-- YOLOv8 instance segmentation (pothole mask)
-- Depth-Anything-V2 depth estimation (depth map)
-- Rule-based severity classification (Shallow, Moderate, Deep, or No pothole)
-- ML-based severity classification (Logistic Regression, Random Forest, SVM, Naive Bayes)
+[![Python](https://img.shields.io/badge/Python-3.10+-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-Backend-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![React](https://img.shields.io/badge/React-Frontend-61DAFB?logo=react&logoColor=black)](https://react.dev/)
+[![Vite](https://img.shields.io/badge/Vite-Build-646CFF?logo=vite&logoColor=white)](https://vitejs.dev/)
+[![YOLOv8](https://img.shields.io/badge/YOLOv8-Segmentation-111111)](https://docs.ultralytics.com/)
 
-Dataset source: https://www.kaggle.com/datasets/farzadnekouei/pothole-image-segmentation-dataset
+A full pothole analysis stack that combines segmentation, depth estimation, rule-based logic, and machine learning in a single workflow.
 
-## Project Structure
+## Quick Access Links
+
+| Resource | Link |
+|---|---|
+| Live Website (Frontend) | https://web-ui-sage-five.vercel.app |
+| Live API (Backend) | https://atharvahonparkhe77-vision-based-pothole-detection-api.hf.space |
+| RDD2022 GitHub Repository | https://github.com/sekilab/RoadDamageDetector |
+| Pothole-600 Dataset Page | https://sites.google.com/view/pothole-600/dataset |
+| Kaggle Pothole Segmentation Dataset | https://www.kaggle.com/datasets/farzadnekouei/pothole-image-segmentation-dataset |
+
+> Dataset note: RDD2022 is linked from GitHub (as used in `scripts/convert_rdd2022.py`).
+> Pothole-600 is linked from its official dataset page (as used in `scripts/convert_pothole600.py`).
+
+## Table of Contents
+
+- [1. What This Project Does](#1-what-this-project-does)
+- [Quick Access Links](#quick-access-links)
+- [2. Current Directory Structure](#2-current-directory-structure)
+- [3. How It Works](#3-how-it-works)
+- [4. First-Time Setup (Detailed)](#4-first-time-setup-detailed)
+- [5. Run the Project](#5-run-the-project)
+- [6. Training and Evaluation](#6-training-and-evaluation)
+- [7. API Endpoints](#7-api-endpoints)
+- [8. Frontend Overview](#8-frontend-overview)
+- [9. Deployment Overview](#9-deployment-overview)
+- [10. Troubleshooting](#10-troubleshooting)
+
+## 1. What This Project Does
+
+This project analyzes road images and estimates pothole severity by combining:
+
+- YOLO-based pothole segmentation
+- Depth estimation from monocular images
+- Rule-based severity logic
+- ML model predictions and comparison reports
+- A web dashboard for detection and insights
+
+Typical output includes:
+
+- Pothole-level severity predictions
+- Overlay visualizations
+- Schematic JSON output
+- Model insights from `ml_results/`
+
+## 2. Current Directory Structure
+
+This README now reflects the directory structure you shared as the active/current project layout.
 
 ```text
-Vision-Based-Pothole-Detection/
-├── main.py                  # Original pipeline (rule-based only)
-├── inference.py             # Unified pipeline (rule-based + ML models)
-├── segmentation.py          # YOLOv8 pothole mask extraction
-├── features.py              # Depth feature extraction
-├── classifier.py            # Rule-based severity thresholds
-├── ml_classifier.py         # ML training: features, KMeans labels, model training
-├── report.tex               # LaTeX project report
-├── depth/
-│   └── generate_depth.py    # Batch depth map generation
-├── data1/
-│   ├── train/images/        # 720 training images
-│   ├── train/labels/        # YOLO segmentation labels
-│   ├── valid/images/        # 60 validation images
-│   └── valid/labels/
-├── depth_maps_1/
-│   ├── train/               # Precomputed .npy depth maps (train)
-│   └── valid/               # Precomputed .npy depth maps (valid)
-├── ml_models/
-│   ├── feature_scaler.pkl   # StandardScaler (fit on training data)
-│   ├── logistic_regression.pkl
-│   ├── random_forest.pkl
-│   ├── svm.pkl
-│   └── naive_bayes.pkl
-├── ml_results/
-│   ├── accuracy_comparison.png
-│   ├── bootstrap_distributions.png
-│   ├── kmeans_severity_distribution.png
-│   ├── train_features.csv
-│   └── valid_features.csv
-├── yolo-segmentation/
-│   └── model/best.pt
-├── Depth-Anything-V2/
-│   └── checkpoints/depth_anything_v2_vits.pth
-└── output/                  # Saved inference visualizations
+vyankateshd206-vision-based-pothole-detection/
+|-- README.md
+|-- api.py
+|-- classifier.py
+|-- Dockerfile
+|-- features.py
+|-- inference.py
+|-- main.py
+|-- ml_classifier.py
+|-- PIPELINE.md
+|-- report.tex
+|-- requirements.txt
+|-- road_segment_analysis.py
+|-- segmentation.py
+|-- test_pipeline.py
+|-- .dockerignore
+|-- .env.example
+|-- depth/
+|   |-- generate_depth.py
+|   `-- global_normalize.py
+|-- ml_models/
+|   |-- feature_scaler.pkl
+|   |-- logistic_regression.pkl
+|   `-- naive_bayes.pkl
+|-- ml_results/
+|   |-- ablation_study.csv
+|   |-- classification_report_ensemble.txt
+|   |-- classification_report_knn.txt
+|   |-- classification_report_lightgbm.txt
+|   |-- classification_report_Logistic Regression.txt
+|   |-- classification_report_mlp.txt
+|   |-- classification_report_Naive Bayes.txt
+|   |-- classification_report_Random Forest.txt
+|   |-- classification_report_SVM.txt
+|   `-- classification_report_xgboost.txt
+|-- model_insights_1/
+|   |-- code.html
+|   `-- DESIGN.md
+|-- scripts/
+|   |-- convert_pothole600.py
+|   |-- convert_rdd2022.py
+|   |-- dataset_summary.py
+|   |-- deduplicate.py
+|   |-- extract_gps.py
+|   |-- retrain_yolo.py
+|   |-- verification_report.txt
+|   `-- verify_dataset.py
+|-- web-ui/
+|   |-- README.md
+|   |-- eslint.config.js
+|   |-- index.html
+|   |-- package.json
+|   |-- vercel.json
+|   |-- vite.config.js
+|   |-- .env.example
+|   `-- src/
+|       |-- App.jsx
+|       |-- index.css
+|       |-- main.jsx
+|       |-- mockData.js
+|       `-- components/
+|           |-- AccuracyChart.jsx
+|           |-- ClassifierTable.jsx
+|           |-- FeatureStrip.jsx
+|           |-- ImagePanels.jsx
+|           |-- InsightsHub.jsx
+|           |-- LoadingSkeleton.jsx
+|           |-- SeverityBadge.jsx
+|           `-- UploadPanel.jsx
+|-- yolo-segmentation/
+|   |-- README.md
+|   `-- road_damage_assessment_app.py
+`-- .hf-space-src/
+    |-- api.py
+    |-- classifier.py
+    |-- Dockerfile
+    |-- features.py
+    |-- inference.py
+    |-- requirements.txt
+    |-- segmentation.py
+    |-- ml_models/
+    |   |-- feature_scaler.pkl
+    |   |-- logistic_regression.pkl
+    |   `-- naive_bayes.pkl
+    `-- ml_results/
+        |-- ablation_study.csv
+        |-- classification_report_ensemble.txt
+        |-- classification_report_knn.txt
+        |-- classification_report_lightgbm.txt
+        |-- classification_report_Logistic Regression.txt
+        |-- classification_report_mlp.txt
+        |-- classification_report_Naive Bayes.txt
+        |-- classification_report_Random Forest.txt
+        |-- classification_report_SVM.txt
+        `-- classification_report_xgboost.txt
 ```
 
-## Pipeline Files
+## 3. How It Works
 
-| File | Purpose |
-|------|---------|
-| `segmentation.py` | Loads YOLOv8 segmentation weights and returns the largest pothole mask |
-| `features.py` | Extracts normalised depth-based features inside the pothole mask |
-| `classifier.py` | Applies rule-based thresholds on depth and area to assign severity |
-| `main.py` | Runs the original pipeline (rule-based classification only) |
-| `inference.py` | **Unified inference pipeline** — runs both rule-based and ML classifiers |
-| `ml_classifier.py` | Feature extraction, KMeans pseudo-labelling, ML model training and evaluation |
-| `depth/generate_depth.py` | Batch-generates and stores `.npy` depth maps for dataset folders |
+![Pipeline Overview](docs/assets/workflow.svg)
 
-## 1) Setup
+### End-to-End Flow
 
-Run from project root:
+```mermaid
+flowchart TD
+    A[Upload road image] --> B[YOLO segmentation]
+    B --> C[Extract pothole masks]
+    A --> D[Depth estimation]
+    C --> E[Feature extraction]
+    D --> E
+    E --> F[Rule-based severity]
+    E --> G[ML model severity]
+    F --> H[Consensus/result packaging]
+    G --> H
+    H --> I[FastAPI response]
+    I --> J[React UI: Detection + Insights]
+```
+
+### Core Python Modules
+
+- `segmentation.py`
+  - Handles pothole mask extraction from images.
+- `features.py`
+  - Computes geometry and depth features used in classification.
+- `classifier.py`
+  - Applies rule-based severity logic.
+- `inference.py`
+  - Unifies depth estimation + feature extraction + model inference.
+- `api.py`
+  - Exposes HTTP endpoints used by the web app.
+- `ml_classifier.py`
+  - Training and evaluation pipeline for machine learning models.
+
+## 4. First-Time Setup (Detailed)
+
+### 4.1 Prerequisites
+
+Install these first:
+
+- Python 3.10 or newer
+- Node.js 18 or newer
+- Git
+- PowerShell (recommended on Windows)
+
+### 4.2 Backend Setup
+
+From project root:
 
 ```powershell
 python -m venv .venv
 .venv\Scripts\activate
 python -m pip install --upgrade pip
-python -m pip install numpy torch torchvision opencv-python matplotlib ultralytics dill tqdm scikit-learn pandas seaborn joblib
+python -m pip install -r requirements.txt
+copy .env.example .env
 ```
 
-## 2) Get Depth-Anything-V2 from GitHub
+### 4.3 External Assets You Need for Local Inference
 
-Clone Depth-Anything-V2 from GitHub:
+Some runtime assets are not guaranteed to be in this structure by default.
+
+1. Depth-Anything-V2 repository
 
 ```powershell
 git clone https://github.com/DepthAnything/Depth-Anything-V2.git
 ```
 
-The scripts support either of these locations:
+2. Depth checkpoint
 
-- `Vision-Based-Pothole-Detection/Depth-Anything-V2`
-- `../Depth-Anything-V2` (sibling folder of this project)
-
-## 3) Get dataset from Kaggle
-
-Download the dataset from:
-
-- https://www.kaggle.com/datasets/farzadnekouei/pothole-image-segmentation-dataset
-
-Place it in this project as `data1/` so images are available at:
-
-- `data1/train/images`
-- `data1/valid/images`
-
-## 4) Required model files
-
-Make sure these files exist:
+Place this file at:
 
 - `Depth-Anything-V2/checkpoints/depth_anything_v2_vits.pth`
+
+3. YOLO segmentation weights
+
+Create folder and place your trained model:
+
+```powershell
+mkdir yolo-segmentation\model
+```
+
+Required file:
+
 - `yolo-segmentation/model/best.pt`
 
-## 5) Generate depth maps for `data1` (one-time)
-
-Generate precomputed depth maps for all training and validation images:
-
-```powershell
-python depth/generate_depth.py
-```
-
-This saves `.npy` depth maps to `depth_maps_1/train/` and `depth_maps_1/valid/`.
-
-> **Note**: `generate_depth.py` is currently configured for `data1`. If using a different data directory, update `DATA_PATHS` and `OUTPUT_PATH` in the script.
-
-## 6) Train ML severity classifiers
-
-Once depth maps are generated, train all four ML models:
-
-```powershell
-python ml_classifier.py
-```
-
-This will:
-1. Extract 11-dimensional features (geometric + depth) from each pothole in the dataset
-2. Generate severity pseudo-labels via KMeans clustering (k=3)
-3. Train Logistic Regression, Random Forest, SVM, and Naive Bayes classifiers
-4. Evaluate on the validation set with bootstrapped confidence intervals
-5. Save models to `ml_models/` and results/plots to `ml_results/`
-
-## 7) Run inference (rule-based + ML)
-
-Run the unified inference pipeline on a single image:
-
-```powershell
-python inference.py data1/train/images/pic-1-_jpg.rf.49882cdb272111f43a6656b1494a4918.jpg --output_dir output --no_show
-```
-
-This outputs:
-- Console: severity predictions from both the rule-based classifier and all four ML models
-- Saved visualization with 3 panels: original + labels, mask overlay, depth heatmap
-
-To display the plot interactively, remove `--no_show`.
-
-## 8) Run original pipeline (rule-based only)
-
-```powershell
-python main.py data1/train/images/pic-1-_jpg.rf.49882cdb272111f43a6656b1494a4918.jpg --output_dir output --no_show
-```
-
-## How the ML classifier works
-
-### Feature Extraction
-For each pothole detected via YOLO segmentation, 11 features are extracted:
-- **Geometric**: height, width, box_area, pothole_area, nonpothole_area
-- **Depth**: mean_depth, max_depth, min_depth, depth_std, depth_range, p90_depth
-
-### Pseudo-Label Generation
-Since no ground-truth severity labels exist, KMeans clustering (k=3) is applied on `max_depth` and `pothole_area` to generate three severity levels:
-- **Shallow** (Level 0) — small area, lower depth
-- **Moderate** (Level 1) — medium area/depth
-- **Deep** (Level 2) — large area, higher depth
-
-### Model Evaluation
-- Accuracy and macro F1-score on the validation set
-- Bootstrap resampling (n=1000) for 95% confidence intervals on accuracy
-
-### Known Limitations
-- Pseudo-labels are derived from the same features used for training, so high accuracy is expected but does not indicate true generalisation
-- Per-image depth normalisation reduces depth discriminability across images
-
-## 9) Deploy (Free Tier: Vercel + Hugging Face Spaces)
-
-This repository now includes deployment-ready configuration for a free split deployment:
-
-- Frontend: Vercel (static Vite build from `web-ui/`)
-- Backend: Hugging Face Spaces Docker (FastAPI in project root)
-
-### Backend deploy prep
-
-1. Build/runtime files are included:
-	- `requirements.txt`
-	- `Dockerfile`
-	- `.dockerignore`
-	- `.env.example`
-2. Set backend environment variables:
-	- `FRONTEND_ORIGINS=https://<your-vercel-domain>`
-	- `PORT=7860` (Hugging Face default for Docker Spaces)
-3. Start command is already configured in Dockerfile:
-
-```bash
-uvicorn api:app --host 0.0.0.0 --port ${PORT:-7860}
-```
-
-4. Depth model note:
-	 - `Depth-Anything-V2/` is not required in GitHub for deployment.
-	 - Dockerfile automatically clones Depth-Anything-V2 and downloads
-		 `depth_anything_v2_vits.pth` during image build.
-
-### Frontend deploy prep
-
-1. Configure environment variable in Vercel:
-	- `VITE_API_BASE_URL=https://<your-space-subdomain>.hf.space`
-2. Build command and output:
-	- Build: `npm run build`
-	- Output: `dist`
-3. SPA fallback routing is handled by `web-ui/vercel.json`.
-
-### Local parity check
-
-Backend:
-
-```powershell
-python api.py
-```
-
-Frontend:
+### 4.4 Frontend Setup
 
 ```powershell
 cd web-ui
 copy .env.example .env
 npm install
+```
+
+Set frontend API URL in `web-ui/.env`:
+
+```env
+VITE_API_BASE_URL=http://localhost:8000
+```
+
+### 4.5 Backend Environment
+
+Use `.env` in project root (created from `.env.example`). Typical values:
+
+```env
+FRONTEND_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
+PORT=8000
+UVICORN_RELOAD=false
+```
+
+## 5. Run the Project
+
+### 5.1 Start backend API
+
+From project root:
+
+```powershell
+python api.py
+```
+
+Backend health check:
+
+```powershell
+Invoke-RestMethod -Uri "http://localhost:8000/healthz" -Method Get
+```
+
+### 5.2 Start frontend
+
+From `web-ui/`:
+
+```powershell
 npm run dev
 ```
+
+Open:
+
+- Frontend: http://localhost:5173
+- Backend: http://localhost:8000
+
+### 5.3 Run CLI inference
+
+```powershell
+python inference.py <path_to_image> --output_dir output --no_show
+```
+
+### 5.4 Run original rule-only pipeline
+
+```powershell
+python main.py <path_to_image> --output_dir output --no_show
+```
+
+## 6. Training and Evaluation
+
+<details>
+<summary><strong>Expand training workflow</strong></summary>
+
+### Step 1: Prepare dataset
+
+Dataset is not guaranteed to be bundled in this structure. You can:
+
+- place data in your preferred folder
+- update dataset paths in training scripts accordingly
+
+### Step 2: Generate depth maps
+
+```powershell
+python depth/generate_depth.py
+```
+
+### Step 3: Train models
+
+```powershell
+python ml_classifier.py
+```
+
+### Step 4: Validate pipeline
+
+```powershell
+python test_pipeline.py
+```
+
+### Step 5: Inspect results
+
+- `ml_models/` for saved artifacts
+- `ml_results/` for reports and study files
+
+</details>
+
+## 7. API Endpoints
+
+### `GET /healthz`
+
+Backend health endpoint.
+
+### `POST /analyze`
+
+- Input: image file upload (`multipart/form-data`, field name `file`)
+- Output: severity decisions, per-pothole information, and visualization payload
+
+### `GET /insights/summary`
+
+Returns insights data consumed by `InsightsHub.jsx`.
+
+### `GET /insights/files/{file_name}`
+
+Serves allowed artifacts from `ml_results/`.
+
+## 8. Frontend Overview
+
+Key frontend entry points:
+
+- `web-ui/src/App.jsx`
+- `web-ui/src/components/UploadPanel.jsx`
+- `web-ui/src/components/ImagePanels.jsx`
+- `web-ui/src/components/InsightsHub.jsx`
+- `web-ui/src/components/ClassifierTable.jsx`
+- `web-ui/src/components/FeatureStrip.jsx`
+
+The UI has two major experiences:
+
+1. Detection flow (image upload and severity output)
+2. Insights flow (metrics, charts, reports)
+
+## 9. Deployment Overview
+
+Current deployment style in this repository:
+
+- Frontend on Vercel from `web-ui/`
+- Backend on Hugging Face Spaces Docker using `.hf-space-src/` staging
+
+Main deployment assets:
+
+- `Dockerfile`
+- `requirements.txt`
+- `.dockerignore`
+- `.hf-space-src/`
+- `web-ui/vercel.json`
+
+## 10. Troubleshooting
+
+### Backend fails at startup
+
+Check that both are present:
+
+- `Depth-Anything-V2/checkpoints/depth_anything_v2_vits.pth`
+- `yolo-segmentation/model/best.pt`
+
+### Frontend cannot call backend
+
+- Verify `VITE_API_BASE_URL` in `web-ui/.env`
+- Verify CORS values in root `.env` (`FRONTEND_ORIGINS`)
+
+### Hugging Face login works but cannot create/push
+
+- Ensure token has repository write permission under your namespace
+
+### Slow first request in cloud
+
+- Free-tier spaces may sleep and need warm-up time
+
+---
+
+If you are a first-time user, start with Section 4 and Section 5, then move to Section 6 when you want to retrain or evaluate models.
