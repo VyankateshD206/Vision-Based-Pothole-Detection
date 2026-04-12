@@ -17,8 +17,8 @@ A full pothole analysis stack that combines segmentation, depth estimation, rule
 | Live Website (Frontend) | https://web-ui-sage-five.vercel.app |
 | Live API (Backend) | https://atharvahonparkhe77-vision-based-pothole-detection-api.hf.space |
 | RDD2022 GitHub Repository | https://github.com/sekilab/RoadDamageDetector |
-| RDD2022 Release Used by Scripts | https://github.com/sekilab/RoadDamageDetector/releases/tag/v2022.1 |
 | Pothole-600 Dataset Page | https://sites.google.com/view/pothole-600/dataset |
+| Kaggle Pothole Segmentation Dataset | https://www.kaggle.com/datasets/farzadnekouei/pothole-image-segmentation-dataset |
 
 > Dataset note: RDD2022 is linked from GitHub (as used in `scripts/convert_rdd2022.py`).
 > Pothole-600 is linked from its official dataset page (as used in `scripts/convert_pothole600.py`).
