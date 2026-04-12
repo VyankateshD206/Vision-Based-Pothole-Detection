@@ -1,13 +1,15 @@
 import { useRef, useState, useEffect } from "react";
 import { motion, AnimatePresence, useInView, useReducedMotion } from "motion/react";
 import { Link2 as Linkedin, Camera as Instagram, GitBranch as Github, ChevronDown } from "lucide-react";
+import atharvaImage from "./images/atharva.jpeg";
+import vyankateshImage from "./images/Vyankatesh.jpeg";
+import shashankImage from "./images/shashank.jpeg";
 
 const contributors = [
     {
         id: 1,
         name: "Atharva Honparkhe",
-        avatar: "/contributors/atharva.jpeg",
-        fallbackAvatar: "https://avatars.githubusercontent.com/RepoRogue123?v=4",
+        avatar: atharvaImage,
         accentColor: "#00d4ff",
         roleLabel: "Core Model and UI Developer",
         profileLine: "Led the central model direction and delivered the complete frontend experience from detection flow to insights.",
@@ -26,8 +28,7 @@ const contributors = [
     {
         id: 2,
         name: "Vyankatesh Deshpande",
-        avatar: "/contributors/Vyankatesh.jpeg",
-        fallbackAvatar: "https://avatars.githubusercontent.com/VyankateshD206?v=4",
+        avatar: vyankateshImage,
         accentColor: "#ff6b35",
         roleLabel: "YOLOv8 Segmentation and Data Engineer",
         profileLine: "Focused on dataset preparation and baseline segmentation quality to keep training runs stable and reproducible.",
@@ -46,8 +47,7 @@ const contributors = [
     {
         id: 3,
         name: "Shashank Parchure",
-        avatar: "/contributors/shashank.jpeg",
-        fallbackAvatar: "https://avatars.githubusercontent.com/shashankparchure?v=4",
+        avatar: shashankImage,
         accentColor: "#a855f7",
         roleLabel: "Data and Evaluation Support",
         profileLine: "Supported segmentation-data workflows and benchmark analysis to improve consistency across experiments.",
@@ -148,7 +148,7 @@ export default function ContributorsSection({ onBackToDetection }) {
     const [activeIndex, setActiveIndex] = useState(0);
     const [showShowcase, setShowShowcase] = useState(false);
     const [hoveredSocial, setHoveredSocial] = useState("");
-    const [imageLoadState, setImageLoadState] = useState({});
+    const [imageErrors, setImageErrors] = useState({});
     const prefersReducedMotion = useReducedMotion();
 
     const sectionInView = useInView(snapRef, { margin: "-100px 0px -100px 0px" });
@@ -505,8 +505,6 @@ export default function ContributorsSection({ onBackToDetection }) {
                         const accentSoft = hexToRgba(accent, 0.24);
                         const accentStrong = hexToRgba(accent, 0.34);
                         const isActive = activeIndex === index;
-                        const avatarState = imageLoadState[contributor.id] || "primary";
-                        const avatarSrc = avatarState === "primary" ? contributor.avatar : contributor.fallbackAvatar;
 
                         return (
                             <section
@@ -710,32 +708,17 @@ export default function ContributorsSection({ onBackToDetection }) {
                                                             : `0 0 0 1px ${accent}`,
                                                 }}
                                             >
-                                                {avatarState !== "failed" ? (
+                                                {!imageErrors[contributor.id] ? (
                                                     <img
-                                                        src={avatarSrc}
+                                                        src={contributor.avatar}
                                                         alt={contributor.name}
                                                         className="h-64 w-64 rounded-full object-cover md:h-72 md:w-72"
-                                                        onError={() => {
-                                                            setImageLoadState((current) => {
-                                                                const currentState = current[contributor.id] || "primary";
-
-                                                                if (currentState === "primary") {
-                                                                    return {
-                                                                        ...current,
-                                                                        [contributor.id]: "fallback",
-                                                                    };
-                                                                }
-
-                                                                if (currentState === "fallback") {
-                                                                    return {
-                                                                        ...current,
-                                                                        [contributor.id]: "failed",
-                                                                    };
-                                                                }
-
-                                                                return current;
-                                                            });
-                                                        }}
+                                                        onError={() =>
+                                                            setImageErrors((current) => ({
+                                                                ...current,
+                                                                [contributor.id]: true,
+                                                            }))
+                                                        }
                                                     />
                                                 ) : (
                                                     <div

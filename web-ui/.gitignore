@@ -27,7 +27,3 @@ dist-ssr
 *.sw?
 
 .vercel
-
-# Local contributor photos (keep out of Git)
-src/components/images/
-public/contributors/
